@@ -5,7 +5,7 @@ import { authConfig } from "@/lib/auth.config";
 // Edge-safe instance (no Prisma) used only to read the session from the JWT.
 const { auth } = NextAuth(authConfig);
 
-const PUBLIC_PATHS = ["/login"];
+const PUBLIC_PATHS = ["/login", "/icon"];
 
 export default auth((req) => {
   const { pathname } = req.nextUrl;
