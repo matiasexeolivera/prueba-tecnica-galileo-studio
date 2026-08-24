@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+:root {
+  /* Stop the browser from auto-darkening form controls when the OS uses dark mode. */
+  color-scheme: light;
+
+  --background: #f6f7f9;
+  --surface: #ffffff;
+  --foreground: #14171f;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+
+  --accent: #4338ca; /* indigo-700 */
+  --accent-hover: #3730a3;
+  --accent-soft: #eef2ff;
+
+  --danger: #dc2626;
+  --danger-soft: #fef2f2;
+  --warning: #d97706;
+  --warning-soft: #fffbeb;
+  --success: #059669;
+  --success-soft: #ecfdf5;
+  --info: #2563eb;
+  --info-soft: #eff6ff;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+}
