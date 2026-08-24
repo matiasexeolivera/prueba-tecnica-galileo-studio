@@ -22,6 +22,14 @@
   --success-soft: #ecfdf5;
   --info: #2563eb;
   --info-soft: #eff6ff;
+
+  /* Superficie de marca: grafito oscuro, reservado para el sidebar y el login,
+     como guiño al tono dark/técnico de galileostudio.ai sin oscurecer todo el producto. */
+  --brand-bg: #101218;
+  --brand-bg-soft: #181b24;
+  --brand-fg: #f4f4f6;
+  --brand-fg-muted: #9497a8;
+  --brand-border: rgba(255, 255, 255, 0.08);
 }
 
 @theme inline {
@@ -33,6 +41,11 @@
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
   --color-accent-soft: var(--accent-soft);
+  --color-brand-bg: var(--brand-bg);
+  --color-brand-bg-soft: var(--brand-bg-soft);
+  --color-brand-fg: var(--brand-fg);
+  --color-brand-fg-muted: var(--brand-fg-muted);
+  --color-brand-border: var(--brand-border);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
