@@ -1,5 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// Prisma schema — Galileo Studio client portal
+// Multi-tenant data model: strict isolation between organizations, built to grow without rewrites.
 
 generator client {
   provider = "prisma-client"
@@ -8,4 +8,119 @@ generator client {
 
 datasource db {
   provider = "sqlite"
+}
+
+// STAFF roles belong to the consultancy and see every organization; CLIENT_* roles see only their own.
+enum Role {
+  STAFF_ADMIN // consultancy staff, full access
+  STAFF_AGENT // consultancy staff, manages tickets
+  CLIENT_ADMIN // client user, can view/manage everything in their organization
+  CLIENT_MEMBER // client user, sees their own and their organization's tickets
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_ON_CLIENT
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+// Distinguishes incidents, requests and questions; all three share the same Ticket model.
+enum TicketType {
+  INCIDENT
+  REQUEST
+  QUESTION
+}
+
+// The tenant boundary: everything here is only visible to its own users (or STAFF).
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+
+  users   User[]
+  tickets Ticket[]
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String // bcrypt hash
+  role      Role
+  createdAt DateTime @default(now())
+
+  // null for STAFF users (they don't belong to any client organization)
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+
+  ticketsCreated Ticket[]  @relation("TicketCreatedBy")
+  ticketsAssigned Ticket[] @relation("TicketAssignedTo")
+  comments       Comment[]
+
+  @@index([organizationId])
+}
+
+model Ticket {
+  id          String         @id @default(cuid())
+  title       String
+  description String
+  type        TicketType     @default(REQUEST)
+  status      TicketStatus   @default(OPEN)
+  priority    TicketPriority @default(MEDIUM)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  createdById String
+  createdBy   User   @relation("TicketCreatedBy", fields: [createdById], references: [id])
+
+  // consultancy agent responsible for this ticket; null = unassigned
+  assignedToId String?
+  assignedTo   User?   @relation("TicketAssignedTo", fields: [assignedToId], references: [id])
+
+  comments Comment[]
+  events   TicketEvent[]
+
+  @@index([organizationId])
+  @@index([organizationId, status])
+}
+
+// The ticket's conversation thread — replaces WhatsApp/email for follow-ups.
+model Comment {
+  id        String   @id @default(cuid())
+  body      String
+  createdAt DateTime @default(now())
+
+  ticketId String
+  ticket   Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id])
+
+  @@index([ticketId])
+}
+
+// Audit log of status/assignment changes; powers the transparency timeline and future dedup logic.
+model TicketEvent {
+  id        String   @id @default(cuid())
+  type      String // e.g. "STATUS_CHANGED", "ASSIGNED", "CREATED"
+  metadata  String? // free-form JSON string with the event's details
+  createdAt DateTime @default(now())
+
+  ticketId String
+  ticket   Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId])
 }
